@@ -18,6 +18,7 @@ function SchedulingDefault(options) {
 
     this.allJobs = {};
     this.deletedJobs = {};
+    this.isRunning = false;
 }
 
 util.inherits(SchedulingDefault, SchedulingBase);
@@ -53,6 +54,12 @@ SchedulingDefault.prototype.unschedule = function (object) {
 SchedulingDefault.prototype.run = function () {
     var self = this,
         timeout = null;
+
+    if (this.isRunning) {
+        return;
+    }
+
+    this.isRunning = true;
 
     timeout = setTimeout(function () {
         var times = Object.keys(self.allJobs),
