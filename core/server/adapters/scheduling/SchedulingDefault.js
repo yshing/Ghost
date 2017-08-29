@@ -1,6 +1,7 @@
 var util = require('util'),
     moment = require('moment'),
     request = require('superagent'),
+    debug = require('ghost-ignition').debug('scheduling-default'),
     SchedulingBase = require(__dirname + '/SchedulingBase'),
     errors = require(__dirname + '/../../errors'),
     logging = require(__dirname + '/../../logging');
@@ -96,6 +97,8 @@ SchedulingDefault.prototype._addJob = function (object) {
 
     // CASE: should have been already pinged or should be pinged soon
     if (moment(timestamp).diff(moment(), 'minutes') < this.offsetInMinutes) {
+        debug('Imergency job', object.url, moment(object.time).format('YYYY-MM-DD HH:mm:ss'));
+
         instantJob[timestamp] = [object];
         this._execute(instantJob);
         return;
@@ -106,6 +109,7 @@ SchedulingDefault.prototype._addJob = function (object) {
         this.allJobs[timestamp] = [];
     }
 
+    debug('Added job', object.url, moment(object.time).format('YYYY-MM-DD HH:mm:ss'));
     this.allJobs[timestamp].push(object);
 
     keys = Object.keys(this.allJobs);
@@ -129,6 +133,7 @@ SchedulingDefault.prototype._deleteJob = function (object) {
         this.deletedJobs[deleteKey] = [];
     }
 
+    debug('Deleted job', object.url, moment(object.time).format('YYYY-MM-DD HH:mm:ss'));
     this.deletedJobs[deleteKey].push(object);
 };
 
@@ -185,6 +190,8 @@ SchedulingDefault.prototype._execute = function (jobs) {
  * - if we detect to publish a post in the past (case blog is down), we add a force flag
  */
 SchedulingDefault.prototype._pingUrl = function (object) {
+    debug('Ping url', object.url, moment().format('YYYY-MM-DD HH:mm:ss'), moment(object.time).format('YYYY-MM-DD HH:mm:ss'));
+
     var url = object.url,
         time = object.time,
         httpMethod = object.extra ? object.extra.httpMethod : 'PUT',
