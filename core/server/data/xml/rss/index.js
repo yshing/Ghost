@@ -137,7 +137,19 @@ generateFeed = function generateFeed(data) {
             });
 
             // Also add the image to the content, because not all readers support media:content
-            htmlContent('p').first().before('<img src="' + imageUrl + '" />');
+            // Change RSS content output
+            // Remove <p><img> tags and replace with <figure><img...><figcaption>...</figcaption></figure>
+            htmlContent('img').map(function (index, element) {
+                var img = htmlContent(element);
+
+                if (img.parent().is('p')) {
+                    return img.parent().replaceWith(element).end().wrap('<figure></figure>')
+                        .after('<figcaption>' + img.attr('alt') + '</figcaption>');
+                } else {
+                    return img.wrap('<figure></figure>')
+                        .after('<figcaption>' + img.attr('alt') + '</figcaption>');
+                }
+            });
             htmlContent('img').attr('alt', post.title);
         }
 
