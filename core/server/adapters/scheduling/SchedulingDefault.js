@@ -196,6 +196,7 @@ SchedulingDefault.prototype._pingUrl = function (object) {
         time = object.time,
         httpMethod = object.extra ? object.extra.httpMethod : 'PUT',
         tries = object.tries || 0,
+        requestTimeout = object.extra ? object.extra.timeoutInMS : 1000 * 5,
         maxTries = 30,
         req = request[httpMethod.toLowerCase()](url),
         self = this, timeout;
@@ -209,6 +210,10 @@ SchedulingDefault.prototype._pingUrl = function (object) {
             });
         }
     }
+
+    req.timeout({
+        response: requestTimeout
+    });
 
     req.end(function (err, response) {
         if (err) {
